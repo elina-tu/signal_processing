@@ -8,57 +8,105 @@ Created on Tue Oct 13 13:16:06 2020
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.widgets as widgets
+
 from scipy import signal
+import scipy.fft as fft
 
 def closeCallback(event):
     '''"off" button callback to close the window'''
-    plt.close()
+    plt.close('all')
 
 def freqCallback(value):
     '''change frequency according to slider'''
-    plotHandle.set_ydata(sine(value, phaseHandle.val, time(timeHandle.val, \
-                                                           int(numHandle.val))))
+    if typeHandle.value_selected == 'sine':
+        plotHandle.set_ydata(sine(value, phaseHandle.val, time(timeHandle.val, \
+                                                               int(numHandle.val))))
+    elif typeHandle.value_selected == 'sawtooth':
+        plotHandle.set_ydata(signal.sawtooth(2*np.pi*value*time(timeHandle.val,\
+                                            int(numHandle.val)) + phaseHandle.val))
+    elif typeHandle.value_selected == 'square':
+        plotHandle.set_ydata(signal.square(2*np.pi*value*time(timeHandle.val,\
+                                            int(numHandle.val)) + phaseHandle.val))
+
     plotHandle.set_xdata(time(timeHandle.val, int(numHandle.val)))
+    fft_update()
     ax.relim()
     ax.autoscale_view()
     plt.draw()
 
 def timeCallback(value):
     '''change time interval over which function is plotted'''
-    plotHandle.set_ydata(sine(freqHandle.val, phaseHandle.val,time(value, \
-                                                            int(numHandle.val))))
+    if typeHandle.value_selected == 'sine':
+        plotHandle.set_ydata(sine(freqHandle.val, phaseHandle.val,time(value, \
+                                                                int(numHandle.val))))
+    elif typeHandle.value_selected == 'sawtooth':
+        plotHandle.set_ydata(signal.sawtooth(2*np.pi*freqHandle.val*time(value,\
+                                            int(numHandle.val)) + phaseHandle.val))
+    elif typeHandle.value_selected == 'square':
+        plotHandle.set_ydata(signal.square(2*np.pi*freqHandle.val*time(value,\
+                                            int(numHandle.val)) + phaseHandle.val))
+
     plotHandle.set_xdata(time(value, int(numHandle.val)))
+    fft_update()
     ax.relim()
     ax.autoscale_view()
     plt.draw()
 
 def phaseCallback(value):
     '''change phase of the function'''
-    plotHandle.set_ydata(sine(freqHandle.val, value, time(timeHandle.val, \
+    if typeHandle.value_selected == 'sine':
+        plotHandle.set_ydata(sine(freqHandle.val, value, time(timeHandle.val, \
                                                           int(numHandle.val))))
+    elif typeHandle.value_selected == 'sawtooth':
+        plotHandle.set_ydata(signal.sawtooth(2*np.pi*freqHandle.val*time(timeHandle.val,\
+                                            int(numHandle.val)) + value))
+    elif typeHandle.value_selected == 'square':
+        plotHandle.set_ydata(signal.square(2*np.pi*freqHandle.val*time(timeHandle.val,\
+                                            int(numHandle.val)) + value))
+    fft_update()
     ax.relim()
     ax.autoscale_view()
     plt.draw()
 
 def numCallback(value):
     '''change number of points'''
-    plotHandle.set_ydata(sine(freqHandle.val, phaseHandle.val, time(timeHandle.val,\
-                                                                    int(value))))
+    if typeHandle.value_selected == 'sine':
+        plotHandle.set_ydata(sine(freqHandle.val, phaseHandle.val, time(timeHandle.val,\
+                                                                        int(value))))
+    elif typeHandle.value_selected == 'sawtooth':
+        plotHandle.set_ydata(signal.sawtooth(2*np.pi*freqHandle.val*time(timeHandle.val,\
+                                            int(value)) + phaseHandle.val))
+    elif typeHandle.value_selected == 'square':
+        plotHandle.set_ydata(signal.square(2*np.pi*freqHandle.val*time(timeHandle.val,\
+                                            int(value)) + phaseHandle.val))
     plotHandle.set_xdata(time(timeHandle.val, int(value)))
+    fft_update()
+    ax1.relim()
+    ax1.autoscale_view()
     plt.draw()
 
 def typeCallback(label):
     '''change signal type'''
     if label == 'sine':
         plotHandle.set_ydata(sine(freqHandle.val, phaseHandle.val, time(timeHandle.val,\
-                                                             int(numHandle.val))))
+                                                 int(numHandle.val))))
     elif label == 'sawtooth':
         plotHandle.set_ydata(signal.sawtooth(2*np.pi*freqHandle.val*time(timeHandle.val,\
-                                                            int(numHandle.val))))
+                                                int(numHandle.val)) + phaseHandle.val))
     elif label == 'square':
         plotHandle.set_ydata(signal.square(2*np.pi*freqHandle.val*time(timeHandle.val,\
-                                                            int(numHandle.val))))
+                                            int(numHandle.val)) + phaseHandle.val))
+    fft_update()
     plt.draw()
+
+def fft_update():
+    yf = fft.fft(plotHandle.get_ydata())
+    if numHandle.val%2 == 0:
+        fftHandle.set_ydata(abs(yf)[1:int(numHandle.val//2)]/numHandle.val)
+        fftHandle.set_xdata(np.arange(1, numHandle.val//2, 1)/timeHandle.val)
+    else:
+        fftHandle.set_ydata(abs(yf)[1:int((numHandle.val-1)//2 + 1)]/numHandle.val)
+        fftHandle.set_xdata(np.arange(1, (numHandle.val-1)//2 + 1, 1)/timeHandle.val)
 
 fig = plt.figure(figsize=(10, 6))
 
@@ -72,11 +120,16 @@ time = lambda t, num: np.linspace(0, t, num)
 #function for wave
 sine = lambda freq, phase, t : np.sin(2*np.pi*freq*t + phase)
 
-ax = plt.axes([0.1, 0.1, 0.5, 0.8])
-plotHandle, = plt.plot(time(t, num), sine(freq, phase, time(t, num)), 'k-')
+y = sine(freq, phase, time(t, num))
+#fourier transform
+yf = fft.fft(y)
+
+ax = plt.axes([0.1, 0.55, 0.5, 0.4])
+plotHandle, = plt.plot(time(t, num), y, 'k-')
 plt.xlabel('t, s')
 plt.ylabel('f, Hz')
 
+#SIGNAL GRAPH CONTROL
 #off button
 bax = plt.axes([0.75, 0.1, 0.1, 0.05])
 buttonHandle = widgets.Button(bax, 'Off')
@@ -108,5 +161,11 @@ numHandle.on_changed(numCallback)
 rax = plt.axes([0.7, 0.7, 0.1, 0.2])
 typeHandle = widgets.RadioButtons(rax, labels=['sine', 'sawtooth', 'square'])
 typeHandle.on_clicked(typeCallback)
+
+#FFT GRAPH
+ax1 = plt.axes([0.1, 0.05, 0.5, 0.4])
+fftHandle, = plt.plot(np.arange(1, num//2, 1)/t, abs(yf)[1:num//2]/num)
+
+
 
 plt.show()
