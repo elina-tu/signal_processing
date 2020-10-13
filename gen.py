@@ -13,33 +13,47 @@ def closeCallback(event):
     '''"off" button callback to close the window'''
     plt.close()
 
-def freqCallback(val):
+def freqCallback(value):
     '''change frequency according to slider'''
-    plotHandle.set_ydata(sine(val, t))
+    plotHandle.set_ydata(sine(value, time(float(timeHandle.val), num)))
     plt.draw()
+
+def timeCallback(value):
+    plotHandle.set_ydata(sine(float(freqHandle.val), time(value, num)))
+    plotHandle.set_xdata(time(value, num))
+    ax.relim()
+    ax.autoscale_view()
+    plt.draw()
+    pass
 
 t = 1 #s
 num = 100 #number of points
 freq = 1 #Hz
-t = np.linspace(0, t, num)
 
+#time array funcion
+time = lambda t, num: np.linspace(0, t, num)
 #function for wave
 sine = lambda freq, t : np.sin(2*np.pi*freq*t)
 
-ax = plt. axes([0.15, 0.1, 0.6, 0.8])
-plotHandle, = plt.plot(t, sine(freq, t), 'k-')
+ax = plt.axes([0.15, 0.1, 0.5, 0.8])
+plotHandle, = plt.plot(time(t, num), sine(freq, time(t, num)), 'k-')
 plt.xlabel('t, s')
 plt.ylabel('f, Hz')
 
 #off button
-bax = plt.axes([0.8, 0.2, 0.1, 0.05])
+bax = plt.axes([0.8, 0.1, 0.1, 0.05])
 buttonHandle = widgets.Button(bax, 'Off')
 buttonHandle.on_clicked(closeCallback)
 
 #frequency slider
 sax = plt.axes([0.92, 0.5, 0.03, 0.4])
-freqHandle = widgets.Slider(sax, 'frequency', valmin=1, valmax=10, valinit=0.5,\
+freqHandle = widgets.Slider(sax, 'frequency', valmin=1, valmax=10, valinit=1,\
                             orientation='vertical')
 freqHandle.on_changed(freqCallback)
+
+#time slider
+sax1 = plt.axes([0.7, 0.5, 0.1, 0.03])
+timeHandle = widgets.Slider(sax1, 'time interval', valmin=0.1, valmax=10, valinit=t)
+timeHandle.on_changed(timeCallback)
 
 plt.show()
