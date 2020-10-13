@@ -15,32 +15,44 @@ def closeCallback(event):
 
 def freqCallback(value):
     '''change frequency according to slider'''
-    plotHandle.set_ydata(sine(value, time(float(timeHandle.val), num)))
+    plotHandle.set_ydata(sine(value, float(phaseHandle.val), \
+                                           time(float(timeHandle.val), num)))
     ax.relim()
     ax.autoscale_view()
     plt.draw()
 
 def timeCallback(value):
     '''change time interval over which function is plotted'''
-    plotHandle.set_ydata(sine(float(freqHandle.val), time(value, num)))
+    plotHandle.set_ydata(sine(float(freqHandle.val), float(phaseHandle.val),\
+                                                           time(value, num)))
     plotHandle.set_xdata(time(value, num))
     ax.relim()
     ax.autoscale_view()
     plt.draw()
 
+def phaseCallback(value):
+    '''change phase of the function'''
+    plotHandle.set_ydata(sine(float(freqHandle.val), value, time(float(timeHandle.val),\
+                                                             num)))
+    ax.relim()
+    ax.autoscale_view()
+    plt.draw()
+    
+    
 fig = plt.figure(figsize=(10, 6))
 
 t = 1 #s
 num = 100 #number of points
 freq = 1 #Hz
+phase = 0
 
 #time array funcion
 time = lambda t, num: np.linspace(0, t, num)
 #function for wave
-sine = lambda freq, t : np.sin(2*np.pi*freq*t)
+sine = lambda freq, phase, t : np.sin(2*np.pi*freq*t + phase)
 
 ax = plt.axes([0.1, 0.1, 0.5, 0.8])
-plotHandle, = plt.plot(time(t, num), sine(freq, time(t, num)), 'k-')
+plotHandle, = plt.plot(time(t, num), sine(freq, phase, time(t, num)), 'k-')
 plt.xlabel('t, s')
 plt.ylabel('f, Hz')
 
@@ -60,5 +72,9 @@ sax1 = plt.axes([0.75, 0.5, 0.1, 0.03])
 timeHandle = widgets.Slider(sax1, 'time interval', valmin=0.1, valmax=10, valinit=t)
 timeHandle.on_changed(timeCallback)
 
+#phase slider
+sax2 = plt.axes([0.75, 0.4, 0.1, 0.03])
+phaseHandle = widgets.Slider(sax2, 'phase', valmin=0, valmax=2*np.pi, valinit=0)
+phaseHandle.on_changed(phaseCallback)
 
 plt.show()
