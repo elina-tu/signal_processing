@@ -8,6 +8,7 @@ Created on Tue Oct 13 13:16:06 2020
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.widgets as widgets
+from scipy import signal
 
 def closeCallback(event):
     '''"off" button callback to close the window'''
@@ -38,14 +39,27 @@ def phaseCallback(value):
     ax.relim()
     ax.autoscale_view()
     plt.draw()
-    
+
 def numCallback(value):
     '''change number of points'''
     plotHandle.set_ydata(sine(freqHandle.val, phaseHandle.val, time(timeHandle.val,\
                                                                     int(value))))
     plotHandle.set_xdata(time(timeHandle.val, int(value)))
     plt.draw()
-    
+
+def typeCallback(label):
+    '''change signal type'''
+    if label == 'sine':
+        plotHandle.set_ydata(sine(freqHandle.val, phaseHandle.val, time(timeHandle.val,\
+                                                             int(numHandle.val))))
+    elif label == 'sawtooth':
+        plotHandle.set_ydata(signal.sawtooth(2*np.pi*freqHandle.val*time(timeHandle.val,\
+                                                            int(numHandle.val))))
+    elif label == 'square':
+        plotHandle.set_ydata(signal.square(2*np.pi*freqHandle.val*time(timeHandle.val,\
+                                                            int(numHandle.val))))
+    plt.draw()
+
 fig = plt.figure(figsize=(10, 6))
 
 t = 1 #s
@@ -89,5 +103,10 @@ sax3 = plt.axes([0.75, 0.3, 0.1, 0.03])
 numHandle = widgets.Slider(sax3, 'sample number', valmin=2, valmax=500, valinit=num, \
                            valfmt='%d', valstep=1)
 numHandle.on_changed(numCallback)
+
+#radio buttons to select type of signal
+rax = plt.axes([0.7, 0.7, 0.1, 0.2])
+typeHandle = widgets.RadioButtons(rax, labels=['sine', 'sawtooth', 'square'])
+typeHandle.on_clicked(typeCallback)
 
 plt.show()
