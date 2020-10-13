@@ -16,6 +16,8 @@ def closeCallback(event):
 def freqCallback(value):
     '''change frequency according to slider'''
     plotHandle.set_ydata(sine(value, time(float(timeHandle.val), num)))
+    ax.relim()
+    ax.autoscale_view()
     plt.draw()
 
 def timeCallback(value):
@@ -25,7 +27,6 @@ def timeCallback(value):
     ax.relim()
     ax.autoscale_view()
     plt.draw()
-    pass
 
 fig = plt.figure(figsize=(10, 6))
 
@@ -58,5 +59,6 @@ freqHandle.on_changed(freqCallback)
 sax1 = plt.axes([0.75, 0.5, 0.1, 0.03])
 timeHandle = widgets.Slider(sax1, 'time interval', valmin=0.1, valmax=10, valinit=t)
 timeHandle.on_changed(timeCallback)
+
 
 plt.show()
