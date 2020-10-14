@@ -31,7 +31,7 @@ def freqCallback(value):
     plotHandle.set_xdata(time(timeHandle.val, int(numHandle.val)))
     fft_update()
     ax.relim()
-    ax.autoscale_view()
+    ax.autoscale()
     plt.draw()
 
 def timeCallback(value):
@@ -49,7 +49,7 @@ def timeCallback(value):
     plotHandle.set_xdata(time(value, int(numHandle.val)))
     fft_update()
     ax.relim()
-    ax.autoscale_view()
+    ax.autoscale()
     plt.draw()
 
 def phaseCallback(value):
@@ -65,7 +65,7 @@ def phaseCallback(value):
                                             int(numHandle.val)) + value))
     fft_update()
     ax.relim()
-    ax.autoscale_view()
+    ax.autoscale()
     plt.draw()
 
 def numCallback(value):
@@ -81,8 +81,6 @@ def numCallback(value):
                                             int(value)) + phaseHandle.val))
     plotHandle.set_xdata(time(timeHandle.val, int(value)))
     fft_update()
-    ax1.relim()
-    ax1.autoscale_view()
     plt.draw()
 
 def typeCallback(label):
@@ -107,6 +105,9 @@ def fft_update():
     else:
         fftHandle.set_ydata(abs(yf)[1:int((numHandle.val-1)//2 + 1)]/numHandle.val)
         fftHandle.set_xdata(np.arange(1, (numHandle.val-1)//2 + 1, 1)/timeHandle.val)
+
+    ax1.relim()
+    ax1.autoscale()
 
 fig = plt.figure(figsize=(10, 6))
 
