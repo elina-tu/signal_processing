@@ -19,16 +19,16 @@ def closeCallback(event):
 def freqCallback(value):
     '''change frequency according to slider'''
     if typeHandle.value_selected == 'sine':
-        plotHandle.set_ydata(sine(value, phaseHandle.val, time(timeHandle.val, \
+        plotHandle.set_ydata(sine(value, phaseHandle.val, time(t0, timeHandle.val, \
                                                                int(numHandle.val))))
     elif typeHandle.value_selected == 'sawtooth':
-        plotHandle.set_ydata(signal.sawtooth(2*np.pi*value*time(timeHandle.val,\
+        plotHandle.set_ydata(signal.sawtooth(2*np.pi*value*time(t0, timeHandle.val,\
                                             int(numHandle.val)) + phaseHandle.val))
     elif typeHandle.value_selected == 'square':
-        plotHandle.set_ydata(signal.square(2*np.pi*value*time(timeHandle.val,\
+        plotHandle.set_ydata(signal.square(2*np.pi*value*time(t0, timeHandle.val,\
                                             int(numHandle.val)) + phaseHandle.val))
 
-    plotHandle.set_xdata(time(timeHandle.val, int(numHandle.val)))
+    plotHandle.set_xdata(time(t0, timeHandle.val, int(numHandle.val)))
     fft_update()
     ax.relim()
     ax.autoscale()
@@ -37,16 +37,16 @@ def freqCallback(value):
 def timeCallback(value):
     '''change time interval over which function is plotted'''
     if typeHandle.value_selected == 'sine':
-        plotHandle.set_ydata(sine(freqHandle.val, phaseHandle.val,time(value, \
+        plotHandle.set_ydata(sine(freqHandle.val, phaseHandle.val,time(t0, value, \
                                                                 int(numHandle.val))))
     elif typeHandle.value_selected == 'sawtooth':
-        plotHandle.set_ydata(signal.sawtooth(2*np.pi*freqHandle.val*time(value,\
+        plotHandle.set_ydata(signal.sawtooth(2*np.pi*freqHandle.val*time(t0, value,\
                                             int(numHandle.val)) + phaseHandle.val))
     elif typeHandle.value_selected == 'square':
-        plotHandle.set_ydata(signal.square(2*np.pi*freqHandle.val*time(value,\
+        plotHandle.set_ydata(signal.square(2*np.pi*freqHandle.val*time(t0, value,\
                                             int(numHandle.val)) + phaseHandle.val))
 
-    plotHandle.set_xdata(time(value, int(numHandle.val)))
+    plotHandle.set_xdata(time(t0, value, int(numHandle.val)))
     fft_update()
     ax.relim()
     ax.autoscale()
@@ -55,13 +55,13 @@ def timeCallback(value):
 def phaseCallback(value):
     '''change phase of the function'''
     if typeHandle.value_selected == 'sine':
-        plotHandle.set_ydata(sine(freqHandle.val, value, time(timeHandle.val, \
+        plotHandle.set_ydata(sine(freqHandle.val, value, time(t0, timeHandle.val, \
                                                           int(numHandle.val))))
     elif typeHandle.value_selected == 'sawtooth':
-        plotHandle.set_ydata(signal.sawtooth(2*np.pi*freqHandle.val*time(timeHandle.val,\
+        plotHandle.set_ydata(signal.sawtooth(2*np.pi*freqHandle.val*time(t0, timeHandle.val,\
                                             int(numHandle.val)) + value))
     elif typeHandle.value_selected == 'square':
-        plotHandle.set_ydata(signal.square(2*np.pi*freqHandle.val*time(timeHandle.val,\
+        plotHandle.set_ydata(signal.square(2*np.pi*freqHandle.val*time(t0, timeHandle.val,\
                                             int(numHandle.val)) + value))
     fft_update()
     ax.relim()
@@ -71,33 +71,48 @@ def phaseCallback(value):
 def numCallback(value):
     '''change number of points'''
     if typeHandle.value_selected == 'sine':
-        plotHandle.set_ydata(sine(freqHandle.val, phaseHandle.val, time(timeHandle.val,\
+        plotHandle.set_ydata(sine(freqHandle.val, phaseHandle.val, time(t0, timeHandle.val,\
                                                                         int(value))))
     elif typeHandle.value_selected == 'sawtooth':
-        plotHandle.set_ydata(signal.sawtooth(2*np.pi*freqHandle.val*time(timeHandle.val,\
+        plotHandle.set_ydata(signal.sawtooth(2*np.pi*freqHandle.val*time(t0, timeHandle.val,\
                                             int(value)) + phaseHandle.val))
     elif typeHandle.value_selected == 'square':
-        plotHandle.set_ydata(signal.square(2*np.pi*freqHandle.val*time(timeHandle.val,\
+        plotHandle.set_ydata(signal.square(2*np.pi*freqHandle.val*time(t0, timeHandle.val,\
                                             int(value)) + phaseHandle.val))
-    plotHandle.set_xdata(time(timeHandle.val, int(value)))
+    plotHandle.set_xdata(time(t0, timeHandle.val, int(value)))
     fft_update()
     plt.draw()
 
 def typeCallback(label):
     '''change signal type'''
     if label == 'sine':
-        plotHandle.set_ydata(sine(freqHandle.val, phaseHandle.val, time(timeHandle.val,\
+        plotHandle.set_ydata(sine(freqHandle.val, phaseHandle.val, time(t0, timeHandle.val,\
                                                  int(numHandle.val))))
     elif label == 'sawtooth':
-        plotHandle.set_ydata(signal.sawtooth(2*np.pi*freqHandle.val*time(timeHandle.val,\
+        plotHandle.set_ydata(signal.sawtooth(2*np.pi*freqHandle.val*time(t0, timeHandle.val,\
                                                 int(numHandle.val)) + phaseHandle.val))
     elif label == 'square':
-        plotHandle.set_ydata(signal.square(2*np.pi*freqHandle.val*time(timeHandle.val,\
+        plotHandle.set_ydata(signal.square(2*np.pi*freqHandle.val*time(t0, timeHandle.val,\
                                             int(numHandle.val)) + phaseHandle.val))
     fft_update()
     plt.draw()
 
+def leftCallback(value):
+    """change left start of the time interval"""
+    if typeHandle.value_selected == 'sine':
+        wplotHandle.set_ydata(sine(freqHandle.val, phaseHandle.val, time(value* timeHandle.val,\
+                                                                    timeHandle.val, int(numHandle.val))))
+    elif typeHandle.value_selected == 'sawtooth':
+        wplotHandle.set_ydata(signal.sawtooth(2*np.pi*freqHandle.val*time(value* timeHandle.val,\
+                                                    timeHandle.val, int(numHandle.val)) + phaseHandle.val))
+    elif typeHandle.value_selected == 'square':
+        wplotHandle.set_ydata(signal.square(2*np.pi*freqHandle.val*time(value* timeHandle.val,\
+                                                timeHandle.val, int(numHandle.val)) + phaseHandle.val))
+
+    wplotHandle.set_xdata(time(value*timeHandle.val, timeHandle.val, int(numHandle.val)))
+
 def fft_update():
+    """function to update fourier transform plot, when other callbacks trigered"""
     yf = fft.fft(plotHandle.get_ydata())
     if numHandle.val%2 == 0:
         fftHandle.set_ydata(abs(yf)[1:int(numHandle.val//2)]/numHandle.val)
@@ -111,22 +126,25 @@ def fft_update():
 
 fig = plt.figure(figsize=(10, 6))
 
+global t0
+t0 = 0 #s
 t = 1 #s
 num = 100 #number of points
 freq = 1 #Hz
 phase = 0
 
 #time array funcion
-time = lambda t, num: np.linspace(0, t, num)
+time = lambda t0, t, num: np.linspace(t0, t, num)
 #function for wave
 sine = lambda freq, phase, t : np.sin(2*np.pi*freq*t + phase)
 
-y = sine(freq, phase, time(t, num))
+y = sine(freq, phase, time(t0, t, num))
 #fourier transform
 yf = fft.fft(y)
 
 ax = plt.axes([0.1, 0.55, 0.5, 0.4])
-plotHandle, = plt.plot(time(t, num), y, 'k-')
+plotHandle, = plt.plot(time(t0, t, num), y, 'k-') #base plot
+wplotHandle, = plt.plot(time(t0, t, num), y, 'g-') #windowed plot
 plt.xlabel('t, s')
 plt.ylabel('f, Hz')
 
@@ -162,6 +180,11 @@ numHandle.on_changed(numCallback)
 rax = plt.axes([0.7, 0.7, 0.1, 0.2])
 typeHandle = widgets.RadioButtons(rax, labels=['sine', 'sawtooth', 'square'])
 typeHandle.on_clicked(typeCallback)
+
+#left cut off control
+sax4 = plt.axes([0.75, 0.2, 0.1, 0.03])
+leftcutHandle = widgets.Slider(sax4, 'left', valmin=0, valmax=1, valinit=0, valstep=0.01)
+leftcutHandle.on_changed(leftCallback)
 
 #FFT GRAPH
 ax1 = plt.axes([0.1, 0.05, 0.5, 0.4])
