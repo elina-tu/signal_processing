@@ -127,11 +127,15 @@ def fft_update():
     """function to update fourier transform plot, when other callbacks trigered"""
     yf = fft.fft(wplotHandle.get_ydata())
     if int((1-leftcutHandle.val)*numHandle.val)%2 == 0:
-        fftHandle.set_ydata(abs(yf)[1:int(numHandle.val//2)]/numHandle.val)
-        fftHandle.set_xdata(np.arange(1, numHandle.val//2, 1)/timeHandle.val)
+        fftHandle.set_ydata(abs(yf)[1:int((1-leftcutHandle.val)*numHandle.val//2)]\
+                                        /int((1-leftcutHandle.val)*numHandle.val))
+        fftHandle.set_xdata(np.arange(1, int((1-leftcutHandle.val)*numHandle.val)//2,\
+                                                1)/((1-leftcutHandle.val)*timeHandle.val))
     else:
-        fftHandle.set_ydata(abs(yf)[1:int((numHandle.val-1)//2 + 1)]/numHandle.val)
-        fftHandle.set_xdata(np.arange(1, (numHandle.val-1)//2 + 1, 1)/timeHandle.val)
+        fftHandle.set_ydata(abs(yf)[1:int((1-leftcutHandle.val)*numHandle.val-1)//2\
+                                + 1]/int((1-leftcutHandle.val)*numHandle.val))
+        fftHandle.set_xdata(np.arange(1, int((1-leftcutHandle.val)*numHandle.val-1)//2\
+                                    + 1, 1)/((1-leftcutHandle.val)*timeHandle.val))
 
     ax1.relim()
     ax1.autoscale()
@@ -161,11 +165,11 @@ y = sine(freq, phase, time(t0, t, num))
 #fourier transform
 yf = fft.fft(y)
 
-ax = plt.axes([0.1, 0.55, 0.5, 0.4])
+ax = plt.axes([0.1, 0.57, 0.5, 0.4])
 plotHandle, = plt.plot(time(t0, t, num), y, 'b-') #base plot
 wplotHandle, = plt.plot(time(t0, t, num), y, 'r-') #windowed plot
-plt.xlabel('t, s')
-plt.ylabel('f, Hz')
+plt.xlabel('Time, s')
+plt.ylabel('Amplitude')
 
 #SIGNAL GRAPH CONTROL
 #off button
@@ -181,7 +185,7 @@ freqHandle.on_changed(freqCallback)
 
 #time slider
 sax1 = plt.axes([0.75, 0.5, 0.1, 0.03])
-timeHandle = widgets.Slider(sax1, 'time interval', valmin=0.1, valmax=10, valinit=t)
+timeHandle = widgets.Slider(sax1, 'time interval', valmin=0.1, valmax=5, valinit=t)
 timeHandle.on_changed(timeCallback)
 
 #phase slider
@@ -206,9 +210,10 @@ leftcutHandle = widgets.Slider(sax4, 'left', valmin=0, valmax=1, valinit=0, vals
 leftcutHandle.on_changed(leftCallback)
 
 #FFT GRAPH
-ax1 = plt.axes([0.1, 0.05, 0.5, 0.4])
+ax1 = plt.axes([0.1, 0.07, 0.5, 0.4])
 fftHandle, = plt.loglog(np.arange(1, num//2, 1)/t, abs(yf)[1:num//2]/num)
-
+plt.xlabel('Frequency, Hz')
+plt.ylabel('Power')
 
 
 plt.show()
