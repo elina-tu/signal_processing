@@ -30,6 +30,7 @@ def freqCallback(value):
 
     plotHandle.set_xdata(time(t0, timeHandle.val, int(numHandle.val)))
     fft_update()
+    active_graph_update()
     ax.relim()
     ax.autoscale()
     plt.draw()
@@ -48,6 +49,7 @@ def timeCallback(value):
 
     plotHandle.set_xdata(time(t0, value, int(numHandle.val)))
     fft_update()
+    active_graph_update()
     ax.relim()
     ax.autoscale()
     plt.draw()
@@ -64,6 +66,7 @@ def phaseCallback(value):
         plotHandle.set_ydata(signal.square(2*np.pi*freqHandle.val*time(t0, timeHandle.val,\
                                             int(numHandle.val)) + value))
     fft_update()
+    active_graph_update()
     ax.relim()
     ax.autoscale()
     plt.draw()
@@ -83,6 +86,7 @@ def numCallback(value):
     wplotHandle.set_ydata(plotHandle.get_ydata()[int(value*leftcutHandle.val):int(value+1)])
     wplotHandle.set_xdata(plotHandle.get_xdata()[int(value*leftcutHandle.val):int(value+1)])
     fft_update()
+    active_graph_update()
     plt.draw()
 
 def typeCallback(label):
@@ -97,6 +101,7 @@ def typeCallback(label):
         plotHandle.set_ydata(signal.square(2*np.pi*freqHandle.val*time(t0, timeHandle.val,\
                                             int(numHandle.val)) + phaseHandle.val))
     fft_update()
+    active_graph_update()
     plt.draw()
 
 def leftCallback(value):
@@ -111,10 +116,11 @@ def leftCallback(value):
         wplotHandle.set_ydata(signal.square(2*np.pi*freqHandle.val*time(value* timeHandle.val,\
                                                 timeHandle.val, int(numHandle.val)) + phaseHandle.val))'''
 
-    y = plotHandle.get_ydata()
-    y = y[int(numHandle.val*value):int(numHandle.val+1)]
-    wplotHandle.set_ydata(y)
+    #y = plotHandle.get_ydata()
+    #y = y[int(numHandle.val*value):int(numHandle.val+1)]
+    wplotHandle.set_ydata(plotHandle.get_ydata()[int(numHandle.val*value):int(numHandle.val+1)])
     wplotHandle.set_xdata(plotHandle.get_xdata()[int(numHandle.val*value):int(numHandle.val+1)])
+    fft_update()
     plt.draw()
 
 def fft_update():
@@ -129,6 +135,13 @@ def fft_update():
 
     ax1.relim()
     ax1.autoscale()
+
+def active_graph_update():
+    """update graph in the window"""
+    wplotHandle.set_ydata(plotHandle.get_ydata()[int(numHandle.val*leftcutHandle.val):int(numHandle.val+1)])
+    wplotHandle.set_xdata(plotHandle.get_xdata()[int(numHandle.val*leftcutHandle.val):int(numHandle.val+1)])
+    fft_update()
+    plt.draw()
 
 fig = plt.figure(figsize=(10, 6))
 
@@ -194,7 +207,7 @@ leftcutHandle.on_changed(leftCallback)
 
 #FFT GRAPH
 ax1 = plt.axes([0.1, 0.05, 0.5, 0.4])
-fftHandle, = plt.plot(np.arange(1, num//2, 1)/t, abs(yf)[1:num//2]/num)
+fftHandle, = plt.loglog(np.arange(1, num//2, 1)/t, abs(yf)[1:num//2]/num)
 
 
 
