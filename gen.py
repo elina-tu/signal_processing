@@ -80,6 +80,8 @@ def numCallback(value):
         plotHandle.set_ydata(signal.square(2*np.pi*freqHandle.val*time(t0, timeHandle.val,\
                                             int(value)) + phaseHandle.val))
     plotHandle.set_xdata(time(t0, timeHandle.val, int(value)))
+    wplotHandle.set_ydata(plotHandle.get_ydata()[int(value*leftcutHandle.val):int(value+1)])
+    wplotHandle.set_xdata(plotHandle.get_xdata()[int(value*leftcutHandle.val):int(value+1)])
     fft_update()
     plt.draw()
 
@@ -99,7 +101,7 @@ def typeCallback(label):
 
 def leftCallback(value):
     """change left start of the time interval"""
-    if typeHandle.value_selected == 'sine':
+    '''if typeHandle.value_selected == 'sine':
         wplotHandle.set_ydata(sine(freqHandle.val, phaseHandle.val, time(value* timeHandle.val,\
                                                                     timeHandle.val, int(numHandle.val))))
     elif typeHandle.value_selected == 'sawtooth':
@@ -107,14 +109,18 @@ def leftCallback(value):
                                                     timeHandle.val, int(numHandle.val)) + phaseHandle.val))
     elif typeHandle.value_selected == 'square':
         wplotHandle.set_ydata(signal.square(2*np.pi*freqHandle.val*time(value* timeHandle.val,\
-                                                timeHandle.val, int(numHandle.val)) + phaseHandle.val))
+                                                timeHandle.val, int(numHandle.val)) + phaseHandle.val))'''
 
-    wplotHandle.set_xdata(time(value*timeHandle.val, timeHandle.val, int(numHandle.val)))
+    y = plotHandle.get_ydata()
+    y = y[int(numHandle.val*value):int(numHandle.val+1)]
+    wplotHandle.set_ydata(y)
+    wplotHandle.set_xdata(plotHandle.get_xdata()[int(numHandle.val*value):int(numHandle.val+1)])
+    plt.draw()
 
 def fft_update():
     """function to update fourier transform plot, when other callbacks trigered"""
-    yf = fft.fft(plotHandle.get_ydata())
-    if numHandle.val%2 == 0:
+    yf = fft.fft(wplotHandle.get_ydata())
+    if int((1-leftcutHandle.val)*numHandle.val)%2 == 0:
         fftHandle.set_ydata(abs(yf)[1:int(numHandle.val//2)]/numHandle.val)
         fftHandle.set_xdata(np.arange(1, numHandle.val//2, 1)/timeHandle.val)
     else:
@@ -143,8 +149,8 @@ y = sine(freq, phase, time(t0, t, num))
 yf = fft.fft(y)
 
 ax = plt.axes([0.1, 0.55, 0.5, 0.4])
-plotHandle, = plt.plot(time(t0, t, num), y, 'k-') #base plot
-wplotHandle, = plt.plot(time(t0, t, num), y, 'g-') #windowed plot
+plotHandle, = plt.plot(time(t0, t, num), y, 'b-') #base plot
+wplotHandle, = plt.plot(time(t0, t, num), y, 'r-') #windowed plot
 plt.xlabel('t, s')
 plt.ylabel('f, Hz')
 
