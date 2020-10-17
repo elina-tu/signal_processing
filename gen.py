@@ -104,48 +104,36 @@ def typeCallback(label):
     active_graph_update()
     plt.draw()
 
-def leftCallback(value):
+def marginCallback(value):
     """change left start of the time interval"""
-    '''if typeHandle.value_selected == 'sine':
-        wplotHandle.set_ydata(sine(freqHandle.val, phaseHandle.val, time(value* timeHandle.val,\
-                                                                    timeHandle.val, int(numHandle.val))))
-    elif typeHandle.value_selected == 'sawtooth':
-        wplotHandle.set_ydata(signal.sawtooth(2*np.pi*freqHandle.val*time(value* timeHandle.val,\
-                                                    timeHandle.val, int(numHandle.val)) + phaseHandle.val))
-    elif typeHandle.value_selected == 'square':
-        wplotHandle.set_ydata(signal.square(2*np.pi*freqHandle.val*time(value* timeHandle.val,\
-                                                timeHandle.val, int(numHandle.val)) + phaseHandle.val))'''
 
-    #y = plotHandle.get_ydata()
-    #y = y[int(numHandle.val*value):int(numHandle.val+1)]
-    wplotHandle.set_ydata(plotHandle.get_ydata()[int(numHandle.val*value):int(numHandle.val+1)])
-    wplotHandle.set_xdata(plotHandle.get_xdata()[int(numHandle.val*value):int(numHandle.val+1)])
-    fft_update()
+    active_graph_update()
     plt.draw()
 
 def fft_update():
     """function to update fourier transform plot, when other callbacks trigered"""
     yf = fft.fft(wplotHandle.get_ydata())
-    if int((1-leftcutHandle.val)*numHandle.val)%2 == 0:
-        fftHandle.set_ydata(abs(yf)[1:int((1-leftcutHandle.val)*numHandle.val//2)]\
-                                        /int((1-leftcutHandle.val)*numHandle.val))
-        fftHandle.set_xdata(np.arange(1, int((1-leftcutHandle.val)*numHandle.val)//2,\
-                                                1)/((1-leftcutHandle.val)*timeHandle.val))
+    if int((rightcutHandle.val-leftcutHandle.val)*numHandle.val)%2 == 0:
+        fftHandle.set_ydata(abs(yf)[1:int((rightcutHandle.val-leftcutHandle.val)*numHandle.val//2)]\
+                                /int((rightcutHandle.val-leftcutHandle.val)*numHandle.val))
+        fftHandle.set_xdata(np.arange(1, int((rightcutHandle.val-leftcutHandle.val)*numHandle.val)//2,\
+                            1)/((rightcutHandle.val-leftcutHandle.val)*timeHandle.val))
     else:
-        fftHandle.set_ydata(abs(yf)[1:int((1-leftcutHandle.val)*numHandle.val-1)//2\
-                                + 1]/int((1-leftcutHandle.val)*numHandle.val))
-        fftHandle.set_xdata(np.arange(1, int((1-leftcutHandle.val)*numHandle.val-1)//2\
-                                    + 1, 1)/((1-leftcutHandle.val)*timeHandle.val))
+        fftHandle.set_ydata(abs(yf)[1:int((rightcutHandle.val-leftcutHandle.val)*numHandle.val-1)//2\
+                                + 1]/int((rightcutHandle.val-leftcutHandle.val)*numHandle.val))
+        fftHandle.set_xdata(np.arange(1, int((rightcutHandle.val-leftcutHandle.val)*numHandle.val-1)//2\
+                            + 1, 1)/((rightcutHandle.val-leftcutHandle.val)*timeHandle.val))
 
     ax1.relim()
     ax1.autoscale()
 
 def active_graph_update():
     """update graph in the window"""
-    wplotHandle.set_ydata(plotHandle.get_ydata()[int(numHandle.val*leftcutHandle.val):int(numHandle.val+1)])
-    wplotHandle.set_xdata(plotHandle.get_xdata()[int(numHandle.val*leftcutHandle.val):int(numHandle.val+1)])
+    wplotHandle.set_ydata(plotHandle.get_ydata()[int(numHandle.val*leftcutHandle.val)\
+                                    :int(numHandle.val*rightcutHandle.val+1)])
+    wplotHandle.set_xdata(plotHandle.get_xdata()[int(numHandle.val*leftcutHandle.val)\
+                                    :int(numHandle.val*rightcutHandle.val+1)])
     fft_update()
-    plt.draw()
 
 fig = plt.figure(figsize=(10, 6))
 
@@ -184,17 +172,17 @@ freqHandle = widgets.Slider(sax, 'frequency', valmin=1, valmax=10, valinit=1,\
 freqHandle.on_changed(freqCallback)
 
 #time slider
-sax1 = plt.axes([0.75, 0.5, 0.1, 0.03])
+sax1 = plt.axes([0.75, 0.6, 0.1, 0.03])
 timeHandle = widgets.Slider(sax1, 'time interval', valmin=0.1, valmax=5, valinit=t)
 timeHandle.on_changed(timeCallback)
 
 #phase slider
-sax2 = plt.axes([0.75, 0.4, 0.1, 0.03])
+sax2 = plt.axes([0.75, 0.5, 0.1, 0.03])
 phaseHandle = widgets.Slider(sax2, 'phase', valmin=0, valmax=2*np.pi, valinit=phase)
 phaseHandle.on_changed(phaseCallback)
 
 #number of points slider
-sax3 = plt.axes([0.75, 0.3, 0.1, 0.03])
+sax3 = plt.axes([0.75, 0.4, 0.1, 0.03])
 numHandle = widgets.Slider(sax3, 'sample number', valmin=2, valmax=500, valinit=num, \
                            valfmt='%d', valstep=1)
 numHandle.on_changed(numCallback)
@@ -205,12 +193,17 @@ typeHandle = widgets.RadioButtons(rax, labels=['sine', 'sawtooth', 'square'])
 typeHandle.on_clicked(typeCallback)
 
 #left cut off control
-sax4 = plt.axes([0.75, 0.2, 0.1, 0.03])
-leftcutHandle = widgets.Slider(sax4, 'left', valmin=0, valmax=1, valinit=0, valstep=0.01)
-leftcutHandle.on_changed(leftCallback)
+sax4 = plt.axes([0.75, 0.3, 0.1, 0.03])
+leftcutHandle = widgets.Slider(sax4, 'left', valmin=0, valmax=0.99, valinit=0, valstep=0.01)
+leftcutHandle.on_changed(marginCallback)
+
+#right cut off control
+sax5 = plt.axes([0.75, 0.2, 0.1, 0.03])
+rightcutHandle = widgets.Slider(sax5, 'right', valmin=0.01, valmax=1, valinit=1, valstep=0.01)
+rightcutHandle.on_changed(marginCallback)
 
 #FFT GRAPH
-ax1 = plt.axes([0.1, 0.07, 0.5, 0.4])
+ax1 = plt.axes([0.1, 0.09, 0.5, 0.4])
 fftHandle, = plt.loglog(np.arange(1, num//2, 1)/t, abs(yf)[1:num//2]/num)
 plt.xlabel('Frequency, Hz')
 plt.ylabel('Power')
