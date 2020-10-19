@@ -17,7 +17,21 @@ def originalCallback(event):
 
 def filteredCallback(event):
     #global ift_y
-    sd.play(ift_y.real, sample_rate)
+    sd.play(resultPlot.get_ydata(), sample_rate)
+
+def valueCallback(val):
+    
+    #setting powers for frequencies higher than filter to 0
+    y_new = np.copy(yf)
+    y_new[int(float(val)/(2*max_freq)*y_len + 1):int((1 - float(val)/(2*max_freq))*y_len + 1)] = 0
+    #reconstruction of filtered signal
+    ift_y = fft.ifft(y_new)
+    freq_pow = abs(y_new)
+    #updating plots
+    resultPlot.set_ydata(ift_y.real)
+    filter_freq_plot.set_ydata(freq_pow[1:y_len//2]/y_len)
+
+    plt.draw()
 
 y, sample_rate = open_audio('Forest.wav')
 #audio sample from https://www.projectrhea.org/rhea/index.php/Audio_Signal_Filtering
@@ -59,18 +73,23 @@ plt.plot(np.arange(1, y_len//2, 1)/(y_len/sample_rate), yfplot[1:y_len//2]/y_len
 
 #plot of filtered frequencies
 ax3 = plt.axes([0.55, 0.4, 0.4, 0.2])
-plt.plot(np.arange(1, y_len//2, 1)/(y_len/sample_rate), freq_pow[1:y_len//2]/y_len)
+filter_freq_plot, = plt.plot(np.arange(1, y_len//2, 1)/(y_len/sample_rate), freq_pow[1:y_len//2]/y_len)
 
 
 #orininal button
-bax = plt.axes([0.7, 0.1, 0.1, 0.05])
+bax = plt.axes([0.7, 0.17, 0.1, 0.05])
 buttonHandle = widgets.Button(bax, 'original')
 buttonHandle.on_clicked(originalCallback)
 
 #filtered button
-bax1 = plt.axes([0.7, 0.17, 0.1, 0.05])
+bax1 = plt.axes([0.7, 0.1, 0.1, 0.05])
 buttonHandle1 = widgets.Button(bax1, 'filtered')
 buttonHandle1.on_clicked(filteredCallback)
 
 #text field for filter value
+tax = plt.axes([0.7, 0.25, 0.1, 0.05])
+filterHandle = widgets.TextBox(tax, 'Filter frequency ', initial=str(filter))
+filterHandle.on_submit(valueCallback)
+
+
 plt.show()
