@@ -1,3 +1,7 @@
+#this program allows to filter out birds singing by removing higher frequencies of the signal
+# can also be used for removing noise if a different audio is supplied
+# (but note that program is written for even number of samples)
+
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.fft as fft
